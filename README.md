@@ -1,2 +1,2 @@
 # ScrableClub
- Hold Laravel Project For Scrable Spec
+ Holds Laravel Project For Scrable Spec
