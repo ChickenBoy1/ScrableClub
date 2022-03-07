@@ -26,6 +26,7 @@ class PlayerController extends Controller
         ->select('*')
         ->where('player_id', '=', $id)
         ->get()->toArray();
+
         if(!empty($data)){
             return view('showPlayerDetails', compact('data'));
         }else{
@@ -34,18 +35,16 @@ class PlayerController extends Controller
     }
 
     public function updatePlayerDetails(Request $req){
-        //exclude_if:email, $req->email if(reqdata = select){same = true}
-            //accepted if: same
+
         $data = DB::table('players')
             ->select('email', 'telephone')
             ->where('player_id', '=', $req->id)
             ->get()->toArray();
 
-        //dd($same);
         $req->validate([
             'uname' => 'required',
 
-            //makes sure email is unique unless the user didn't change it
+            //makes sure email/telephone is unique unless the user didn't change it
             'email' => "required|email|exclude_if:email,exists:players,".$data[0]->email."|unique:players,email",
             'tele'=> "required|numeric|exclude_if:tele,exists:players,".$data[0]->telephone."|unique:players,telephone|digits:11"
         ]);
@@ -58,8 +57,8 @@ class PlayerController extends Controller
             'telephone' => $req->tele,
  
          ]);
-         //dd($req->id, $req->uname, $req->email);
-        return redirect()->back()->with('success', 'Row Has Been Updated');
+
+         return redirect()->back()->with('success', 'Row Has Been Updated');
 
     }
 
@@ -68,7 +67,7 @@ class PlayerController extends Controller
     }
 
     public function insertNewPlayer(Request $req ){
-        //dd(strlen(strval($req->tele)));
+
         $req->validate([
             'uname' => 'required',
             'email' => 'required|email|unique:players,email',
@@ -76,7 +75,10 @@ class PlayerController extends Controller
 
         ]);
 
-        DB::table('players')->insert(['username' => $req->uname, 'email'=> $req->email, 'telephone'=>$req->tele, 'wins'=>0, 'losses'=>0, 'draws'=>0, 'total_points'=>0, 'joined'=>Carbon::now()]);
+        DB::table('players')->insert([
+            'username' => $req->uname, 'email'=> $req->email, 'telephone'=>$req->tele, 'wins'=>0, 'losses'=>0, 'draws'=>0, 'total_points'=>0, 'joined'=>Carbon::now()
+        ]);
+
         return redirect()->back()->with('success', 'User Has Been Added');
     }
 
@@ -91,7 +93,9 @@ class PlayerController extends Controller
         DB::table('players')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        DB::table('players')->insert([                          //100 for win, 25 for loss, 50 for draw, All play 12 games
+        DB::table('players')->insert([
+            //100 for win, 25 for loss, 50 for draw (12 Players)
+            //NO ACTUALY SCORING SYSTEM, JUST KEPT IT SIMPLE FOR TESTING
             ['username' => 'liam', 'email'=> 'test1@test.com', 'telephone'=>"01234567890" ,'wins'=>0, 'losses'=>12, 'draws'=>0, 'total_points'=>120, 'joined'=>Carbon::now()],
             ['username' => 'dave', 'email'=> 'test2@test.com', 'telephone'=>"12345678901" ,'wins'=>12, 'losses'=>0, 'draws'=>0, 'total_points'=>1200 ,'joined'=>Carbon::now()],
 

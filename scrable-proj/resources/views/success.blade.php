@@ -1,6 +1,6 @@
 @extends('includes.main')
 
 @section('content')
-should have been successful
+Rows Inserted Into DB
 
 @endsection

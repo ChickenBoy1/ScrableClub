@@ -105,7 +105,6 @@ class GameController extends Controller
     }
 
     public function playersProfile($id){
-        //DO VALIDATION IF NOTHING IS RETURNED
 
         //Could check amount played thru column arithetic but i think it's more effiecient to keep a counter
         $data = DB::table('players')
@@ -133,32 +132,40 @@ class GameController extends Controller
                 //check which player of the game was the specified user
                 if($d->player_1 == $id){
 
-                    //checks/assigns users hiighest score for all games they've played
+                    //sets players highscore
+                    //and details of game
                     if($p1_score > $highscore){
                         $highscore = $p1_score;
                         $location = $d->location;
                         $time = $d->played_at;
                         $opponent = $d->player_2;
-                        //echo "best game id is: ".$d->game_id;
                     }
+
+                    //keeps running total
                     $total += $p1_score;
 
                 }else{
-
+                    //sets players highscore
+                    //and details of game
                     if($p2_score > $highscore){
                         $highscore = $p2_score;
                         $location = $d->location;
                         $time = $d->played_at;
                         $opponent = $d->player_1;
                     }
+
+                    //keeps running total
                     $total += $p2_score;
                 }
+
+                //think it's more efficient to just keep counter
                 $played += 1;
             }
         }else{
             echo "Player Has Either Not Played Any Games Or Doesn't Exist";
         }
 
+        //finally sets Players stats
         if($played != 0){
             $avg_score = round($total/$played, 1);
             $wins = $data[0]->wins;
@@ -189,16 +196,15 @@ class GameController extends Controller
 
 
     public function leaderboard(){
-        //DO VALIDATION IF NOTHING IS RETURNED
         $data = DB::table('players')
-        ->select(DB::raw(('username, total_points, wins+losses+draws AS played, round(total_points/(wins+losses+draws), 1) as avg_score')))
-        ->where(DB::raw('wins+losses+draws'), ">", 10)
-        ->orderBy(DB::raw('total_points/(wins+losses+draws)'), 'desc')
-        ->limit(10)
+        ->select(DB::raw(('player_id, username, total_points, wins+losses+draws AS played, 
+        round(total_points/(wins+losses+draws), 1) as avg_score')))
+        ->where(DB::raw('wins+losses+draws'), ">", 10)  //where played>10
+        ->orderBy(DB::raw('total_points/(wins+losses+draws)'), 'desc') //orderBy avgScore Desc
+        ->limit(10)// Top 10
         ->get()->toArray();
         
         return view('leaderboard', compact('data'));
-
     }
 
     public function newGame(){
@@ -221,18 +227,17 @@ class GameController extends Controller
              'p1_score'=>$req->p1_score, 'p2_score'=>$req->p2_score, 
              'played_at'=>Carbon::now(), 'location'=>$req->location]);
 
-        //check who is the winner
-        //1)p1 is winner 2)p2 is winner 3)draw
-        if($req->p1_score > $req->p2_score){
+        //Checks who is the winner and updates player Stats
+        if($req->p1_score > $req->p2_score){    //P1 is Winner
             $this->updateWinner($req->player1, $req->p1_score);
             $this->updateLosser($req->player2, $req->p2_score);
 
-        }else if($req->p2_score > $req->p1_score){
+        }else if($req->p2_score > $req->p1_score){  //P2 is Winner
             $this->updateWinner($req->player2, $req->p2_score);
             $this->updateLosser($req->player1, $req->p1_score);
         }else{
             //DRAW
-            //p1
+            //Update P1
             $update = DB::table('players')
             ->where('player_id', $req->player1)
             ->update([
@@ -240,7 +245,7 @@ class GameController extends Controller
                 'total_points' => DB::raw("(SELECT total_points+'$req->p1_score' as newPoints FROM players WHERE player_id = '$req->player1')")
              ]);
             
-            //p2
+            //Update P2
             $update = DB::table('players')
             ->where('player_id', $req->player2)
             ->update([
@@ -258,9 +263,12 @@ class GameController extends Controller
         $updateWinner = DB::table('players')
              ->where('player_id', $winner)
              ->update([
-                'wins' => DB::raw('wins + 1'),
-                'total_points' => DB::raw("(SELECT total_points+'$winner_score' as newPoints FROM players WHERE player_id = '$winner')")
-             ]);//->increment('total_points', $winner_score);
+                'wins' => DB::raw('wins + 1'),  //increment wins
+                'total_points' => 
+                DB::raw("(SELECT total_points+'$winner_score' as newPoints 
+                FROM players 
+                WHERE player_id = '$winner')")  //gets/creates new total_points
+             ]);
     }
 
     public function updateLosser($loser, $loser_score){
@@ -269,8 +277,10 @@ class GameController extends Controller
         $updateLoser = DB::table('players')
             ->where('player_id', $loser)
             ->update([
-                'losses' => DB::raw('losses + 1'),
-                'total_points' => DB::raw("(SELECT total_points+'$loser_score' as newPoints FROM players WHERE player_id = '$loser')")
+                'losses' => DB::raw('losses + 1'),//increment wins
+                'total_points' => DB::raw("(SELECT total_points+'$loser_score' as newPoints
+                FROM players 
+                WHERE player_id = '$loser')") //gets/creates new total_points
         ]);
     }
 }

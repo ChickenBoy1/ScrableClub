@@ -28,15 +28,16 @@ Route::get('/clearGames', 'App\Http\Controllers\GameController@clearGames');
 Route::get('/newPlayer', 'App\Http\Controllers\PlayerController@newPlayer');
 Route::get('/insertNewPlayer', 'App\Http\Controllers\PlayerController@insertNewPlayer')->name('insertNewPlayer');
 
+//EDIT PLAYER DETAILS
+Route::get('/editPlayerDetails/{id}', 'App\Http\Controllers\PlayerController@showPlayerDetails');
+Route::get('/updatePlayerDetails', 'App\Http\Controllers\PlayerController@updatePlayerDetails')->name('updatePlayerDetails');
+
 //FINISHING/ADDING NEW GAME
 Route::get('/newGame', 'App\Http\Controllers\GameController@newGame');
 Route::get('/insertNewGame', 'App\Http\Controllers\GameController@insertNewGame')->name('insertNewGame');
 
-
+//STATS
 Route::get('/playersProfile/{id}', 'App\Http\Controllers\GameController@playersProfile');
-Route::get('/editPlayerDetails/{id}', 'App\Http\Controllers\PlayerController@showPlayerDetails');
-Route::get('/updatePlayerDetails', 'App\Http\Controllers\PlayerController@updatePlayerDetails')->name('updatePlayerDetails');
-
 Route::get('/leaderboard', 'App\Http\Controllers\GameController@leaderboard');
 
 Route::get('/', function () {

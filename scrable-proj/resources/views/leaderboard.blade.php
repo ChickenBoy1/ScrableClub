@@ -4,6 +4,7 @@
 
 <table>
    <tr>
+   <th>Player ID</th>
       <th>Username</th>
       <th>Total Points</th>
       <th>Games Played</th>
@@ -12,6 +13,8 @@
    </tr>
 @foreach($data as $d)
 <tr>   
+<td><input type = "text" disabled = "true" value = "{{ $d->player_id }}"></td>
+
    <td><input type = "text" disabled = "true" value = "{{ $d->username }}"></td>
    <td><input type = "text" disabled = "true" value = "{{$d->total_points}}"></td>
 
