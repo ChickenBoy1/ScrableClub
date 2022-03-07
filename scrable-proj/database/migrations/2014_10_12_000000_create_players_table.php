@@ -18,8 +18,9 @@ return new class extends Migration
 
         Schema::create('players', function (Blueprint $table) {
             $table->increments('player_id');
-            $table->string('username')->unique();
+            $table->string('username');
             $table->string('email')->unique();
+            $table->string('telephone', 11)->unique();
             $table->integer('wins');
             $table->integer('losses');
             $table->integer('draws');

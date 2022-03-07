@@ -3,7 +3,9 @@
 @section('content')
 
 @foreach($users as $u)
-   {{ $u->name }}
+   {{ $u->username }}
+   {{ $u->email }}
+   {{ $u->telephone }}
 @endforeach
 
 @endsection

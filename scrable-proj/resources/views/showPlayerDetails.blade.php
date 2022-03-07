@@ -20,7 +20,9 @@
 <form method = "GET" action ="{{route('updatePlayerDetails')}}">
 <input id = "id" name = "id" type = "text" readonly value = "{{ $d->player_id }}">
 <input id = "uname" name = "uname" type = "text" value = "{{$d->username}}">
-<input id = "email" name = "email" type = "text" value = "{{$d->email}}">
+<input id = "email" name = "email" type = "email" value = "{{$d->email}}">
+<input id = "tele" maxlength = "11" name = "tele" type = "tel" value = "{{$d->telephone}}">
+
 <input type = "submit" value = "Update">
 </form>
 

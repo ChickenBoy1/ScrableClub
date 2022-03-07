@@ -17,7 +17,7 @@ To View A Players Profile:<br>
 <hr>
 Edit Players Details:<br>
     /editPlayersDetails/player_id <br><br>
-    E.g. /playerProfile/12
+    E.g. /editPlayerDetails/8
     <hr>
 To View The Leaderboard Based On Spec Conditions:<br>
     /leaderboard
