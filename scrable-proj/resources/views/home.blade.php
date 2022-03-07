@@ -12,8 +12,8 @@ Adding New Records:<br>
     NOTE: Add A Player Before "Finishing"(Inserting Game Record) With Them
 <hr>
 To View A Players Profile:<br>
-    /playerProfile/player_id <br><br>
-    E.g. /playerProfile/2
+    /playersProfile/player_id <br><br>
+    E.g. /playersProfile/2
 <hr>
 Edit Players Details:<br>
     /editPlayersDetails/player_id <br><br>
