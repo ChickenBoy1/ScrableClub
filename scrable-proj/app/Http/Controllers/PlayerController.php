@@ -26,8 +26,11 @@ class PlayerController extends Controller
         ->select('*')
         ->where('player_id', '=', $id)
         ->get()->toArray();
-
-        return view('showPlayerDetails', compact('data'));
+        if(!empty($data)){
+            return view('showPlayerDetails', compact('data'));
+        }else{
+            echo "Sorry! UserID was not found";
+        }
     }
 
     public function updatePlayerDetails(Request $req){

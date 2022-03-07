@@ -107,16 +107,10 @@ class GameController extends Controller
     public function playersProfile($id){
         //DO VALIDATION IF NOTHING IS RETURNED
 
-        #wins
-        #losses
-        #draws
-        #avg_score
-        #highest score and details
-        //do join to find highscore
-
         //Could check amount played thru column arithetic but i think it's more effiecient to keep a counter
         $data = DB::table('players')
-            ->select('players.*','games.player_1 as player_1','games.player_2 as player_2', 'games.p1_score as p1_score', 'games.p2_score as p2_score', 'games.played_at', 'games.location')
+            ->select('players.*','games.player_1 as player_1','games.player_2 as player_2', 
+            'games.p1_score as p1_score', 'games.p2_score as p2_score', 'games.played_at', 'games.location')
             ->join('games', function ($join) use($id){
                 $join->on('games.player_1', '=', DB::raw($id))
                 ->orOn('games.player_2', '=', DB::raw($id));
@@ -124,71 +118,71 @@ class GameController extends Controller
             ->where('player_id', $id)
             ->get()->toArray();
 
-        /*
-        $data = DB::table('games')
-        ->select(DB::raw('players.wins, players.losses, players.draws, players.total_points, players.username as opponent_name, 
-        players.wins+players.losses+players.draws AS played, round(players.total_points/(players.wins+players.losses+players.draws), 1) as avg_score'))
-        ->join('players', function ($join) use($id){
-            $join->on('players.player_id', '<>', DB::raw($id));
-            $join->on(function($query){
-                $query->on('games.player_1', '=', 'players.player_id');
-                $query->orOn('games.player_2', '=', 'players.player_id');
-            });
-        })
-        ->where('games.player_1', $id)
-        ->orWhere('games.player_2', $id)
-        ->get()->toArray();
-*/
+
         $highscore = 0;
         $location = "";
         $time = "";
         $opponent = "";
         $total = 0;
         $played = 0;
-        foreach($data as $d){
-            
-            $p1_score = $d->p1_score;
-            $p2_score = $d->p2_score;
-            //check which player of the game was the specified user
-            if($d->player_1 == $id){
+        if(!empty($data)){
+            foreach($data as $d){
+                
+                $p1_score = $d->p1_score;
+                $p2_score = $d->p2_score;
+                //check which player of the game was the specified user
+                if($d->player_1 == $id){
 
-                //checks/assigns users hiighest score for all games they've played
-                if($p1_score > $highscore){
-                    $highscore = $p1_score;
-                    $location = $d->location;
-                    $time = $d->played_at;
-                    $opponent = $d->player_2;
-                    //echo "best game id is: ".$d->game_id;
+                    //checks/assigns users hiighest score for all games they've played
+                    if($p1_score > $highscore){
+                        $highscore = $p1_score;
+                        $location = $d->location;
+                        $time = $d->played_at;
+                        $opponent = $d->player_2;
+                        //echo "best game id is: ".$d->game_id;
+                    }
+                    $total += $p1_score;
+
+                }else{
+
+                    if($p2_score > $highscore){
+                        $highscore = $p2_score;
+                        $location = $d->location;
+                        $time = $d->played_at;
+                        $opponent = $d->player_1;
+                    }
+                    $total += $p2_score;
                 }
-                $total += $p1_score;
-
-            }else{
-
-                if($p2_score > $highscore){
-                    $highscore = $p2_score;
-                    $location = $d->location;
-                    $time = $d->played_at;
-                    $opponent = $d->player_1;
-                }
-                $total += $p2_score;
-
+                $played += 1;
             }
-            $played += 1;
+        }else{
+            echo "Player Has Either Not Played Any Games Or Doesn't Exist";
         }
-        $avg_score = round($total/$played, 1);
-        
-        $wins = $data[0]->wins;
-        $losses = $data[0]->losses;
-        $draws = $data[0]->draws;
 
-        $op_name = DB::table('players')
+        if($played != 0){
+            $avg_score = round($total/$played, 1);
+            $wins = $data[0]->wins;
+            $losses = $data[0]->losses;
+            $draws = $data[0]->draws;  
+
+            $op_name = DB::table('players')
             ->select('username')
             ->where('player_id', $opponent)
             ->get()->toArray();
-            
-        $op_name = $op_name[0]->username;
+            $op_name = $op_name[0]->username;
+        }else{
+            $avg_score = 0;
+            $wins = 0;
+            $losses = 0;
+            $draws = 0;  
+            $op_name = "N/A";
+        }
 
-        $o = array('wins'=>$wins, 'losses'=>$losses, 'draws'=>$draws, 'total'=>$total, 'played'=>$played, 'highscore'=>$highscore, 'location'=>$location, 'time'=>$time, 'op_name'=>$op_name, 'avg_score'=>$avg_score);
+        $o = array(
+            'wins'=>$wins, 'losses'=>$losses, 'draws'=>$draws, 'total'=>$total,
+            'played'=>$played, 'highscore'=>$highscore, 'location'=>$location,
+            'time'=>$time, 'op_name'=>$op_name, 'avg_score'=>$avg_score
+        );
         return view('playerProfile', compact('o'));
 
     }
@@ -215,8 +209,8 @@ class GameController extends Controller
         $req->validate([
             'player1' => 'required|exists:players,player_id|different:player2',
             'player2' => 'required|exists:players,player_id',
-            'p1_score' => 'required|numeric',
-            'p2_score' => 'required|numeric',
+            'p1_score' => 'required|numeric|gte:0',
+            'p2_score' => 'required|numeric|gte:0',
             'location' => 'required|string',
 
         ]);
