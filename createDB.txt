@@ -1,0 +1,30 @@
+CREATE TABLE `players` (
+  `player_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(191) NOT NULL,
+  `email` varchar(191) NOT NULL,
+  `telephone` varchar(11) NOT NULL,
+  `wins` int(11) NOT NULL,
+  `losses` int(11) NOT NULL,
+  `draws` int(11) NOT NULL,
+  `total_points` int(11) NOT NULL,
+  `joined` date NOT NULL,
+  PRIMARY KEY (`player_id`),
+  UNIQUE KEY `players_email_unique` (`email`),
+  UNIQUE KEY `players_telephone_unique` (`telephone`)
+);
+
+
+CREATE TABLE `games` (
+  `game_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `player_1` int(10) unsigned NOT NULL,
+  `player_2` int(10) unsigned NOT NULL,
+  `p1_score` int(11) NOT NULL,
+  `p2_score` int(11) NOT NULL,
+  `played_at` date NOT NULL,
+  `location` varchar(191) NOT NULL,
+  PRIMARY KEY (`game_id`),
+  KEY `games_player_1_foreign` (`player_1`),
+  KEY `games_player_2_foreign` (`player_2`),
+  CONSTRAINT `games_player_1_foreign` FOREIGN KEY (`player_1`) REFERENCES `players` (`player_id`) ON DELETE CASCADE,
+  CONSTRAINT `games_player_2_foreign` FOREIGN KEY (`player_2`) REFERENCES `players` (`player_id`) ON DELETE CASCADE
+);
